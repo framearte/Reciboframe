@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gerador de Recibo - Frame Arte</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      max-width: 800px;
+      margin: auto;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 20px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      margin-top: 30px;
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #recibo {
+      margin-top: 40px;
+      padding: 30px;
+      background: white;
+      border: 2px dashed #000;
+    }
+    .bold {
+      font-weight: bold;
+    }
+    .small {
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gerador de Recibo - Frame Arte</h1>
+
+  <label for="projeto">Projeto</label>
+  <input id="projeto" type="text" placeholder="Ex: Pista de Patinação on Ice" />
+
+  <label for="data">Data</label>
+  <input id="data" type="date" />
+
+  <label for="funcao">Função</label>
+  <input id="funcao" type="text" placeholder="Ex: Edição de vídeo" />
+
+  <label for="valor">Valor</label>
+  <input id="valor" type="number" placeholder="Ex: 1700" />
+
+  <button onclick="gerarRecibo()">Gerar Recibo</button>
+
+  <div id="recibo"></div>
+
+  <script>
+    function formatarParaReal(valor) {
+      return valor.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+        minimumFractionDigits: 2
+      });
+    }
+
+    function gerarRecibo() {
+      const projeto = document.getElementById("projeto").value;
+      const data = document.getElementById("data").value;
+      const funcao = document.getElementById("funcao").value;
+      const valorBruto = parseFloat(document.getElementById("valor").value);
+      const valorFormatado = isNaN(valorBruto) ? "R$ 0,00" : formatarParaReal(valorBruto);
+
+      const dataFormatada = data.split("-").reverse().join(".");
+      const nomeArquivo = `${projeto} - ${dataFormatada} - Recibo Frame arte`;
+
+      const reciboHTML = `
+        <div>
+          <p class="bold">Projeto: ${projeto}</p>
+          <p class="bold">Data: ${dataFormatada}</p>
+          <p class="bold">Função: ${funcao}</p>
+          <p class="small">Valor: ${valorFormatado}</p>
+          <p class="small">Recebi de FRAME ARTE a quantia acima referente ao serviço prestado no projeto especificado.</p>
+        </div>
+      `;
+
+      const reciboDiv = document.getElementById("recibo");
+      reciboDiv.innerHTML = reciboHTML;
+      reciboDiv.style.display = "block";
+    }
+  </script>
+</body>
+</html>
