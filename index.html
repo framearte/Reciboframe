@@ -1,108 +1,174 @@
 
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Gerador de Recibo - Frame Arte</title>
+  <meta charset="UTF-8">
+  <title>Recibo Frame Arte</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 40px;
+      background: #f9fafb;
+      padding: 20px;
+    }
+    .container {
       max-width: 800px;
       margin: auto;
-      background-color: #f9f9f9;
-      color: #333;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label, input, button {
+      width: 100%;
+      margin: 10px 0 5px 0;
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
     }
     label {
+      background: transparent;
+      border: none;
       font-weight: bold;
-      display: block;
-      margin-top: 20px;
+      padding: 0;
+      margin-top: 15px;
     }
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+    .recibo {
+      margin-top: 20px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .botoes {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 15px;
     }
     button {
-      margin-top: 30px;
-      padding: 12px 24px;
-      font-size: 16px;
-      background-color: #4CAF50;
+      background: #4f46e5;
       color: white;
       border: none;
-      border-radius: 6px;
       cursor: pointer;
     }
-    #recibo {
-      margin-top: 40px;
-      padding: 30px;
-      background: white;
-      border: 2px dashed #000;
+    button:hover {
+      background: #4338ca;
     }
-    .bold {
-      font-weight: bold;
+    small {
+      font-size: 0.8rem;
     }
-    .small {
-      font-size: 14px;
+    @media print {
+      .container, .botoes {
+        display: none;
+      }
+      .recibo {
+        box-shadow: none;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Gerador de Recibo - Frame Arte</h1>
+
+<div class="container">
+  <h1>Gerar Recibo</h1>
 
   <label for="projeto">Projeto</label>
-  <input id="projeto" type="text" placeholder="Ex: Pista de Patinação on Ice" />
+  <input type="text" id="projeto" placeholder="Digite o projeto" value="Pista de Patinação on Ice">
 
   <label for="data">Data</label>
-  <input id="data" type="date" />
+  <input type="date" id="data" value="2022-09-02">
+
+  <label for="empresa">Empresa</label>
+  <input type="text" id="empresa" placeholder="Nome da empresa" value="FABIANA REGINA LEÃO GAVIOLI - ME">
+
+  <label for="cnpj">CNPJ</label>
+  <input type="text" id="cnpj" placeholder="CNPJ" value="39.522.766/0001-71">
+
+  <label for="endereco">Endereço</label>
+  <input type="text" id="endereco" placeholder="Endereço" value="Rua Rene de Castro, 101, Freguesia do Ó">
+
+  <label for="valor">Valor (R$)</label>
+  <input type="text" id="valor" placeholder="Digite apenas números, ex: 1700" oninput="formatarValor()">
 
   <label for="funcao">Função</label>
-  <input id="funcao" type="text" placeholder="Ex: Edição de vídeo" />
+  <input type="text" id="funcao" placeholder="Função" value="Cinegrafista e Editor">
 
-  <label for="valor">Valor</label>
-  <input id="valor" type="number" placeholder="Ex: 1700" />
+  <div class="botoes">
+    <button onclick="atualizar()">Atualizar Recibo</button>
+    <button onclick="window.print()">Imprimir</button>
+    <button onclick="exportarPDF()">Salvar como PDF</button>
+  </div>
+</div>
 
-  <button onclick="gerarRecibo()">Gerar Recibo</button>
+<div class="recibo" id="recibo">
+  <h2>João Guilherme Videomaker</h2>
+  <p>Cel: (11) 98471-9403<br>Avenida Afonso Lopes de Baião, 1095<br>Email: joaoguilherme.pro@gmail.com</p>
+  <hr>
+  <h3>Resumo de Prestação de Serviços</h3>
+  <p>Recebemos de <span id="out_empresa"></span><br>
+  CNPJ: <span id="out_cnpj"></span><br>
+  Endereço: <span id="out_endereco"></span></p>
 
-  <div id="recibo"></div>
+  <h2><span id="out_valor"></span></h2>
 
-  <script>
-    function formatarParaReal(valor) {
-      return valor.toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-        minimumFractionDigits: 2
-      });
-    }
+  <p><strong>Função:</strong> <strong><span id="out_funcao"></span></strong><br>
+  <strong>Data:</strong> <strong><span id="out_data"></span></strong><br>
+  <strong>Projeto:</strong> <strong><span id="out_projeto"></span></strong></p>
 
-    function gerarRecibo() {
-      const projeto = document.getElementById("projeto").value;
-      const data = document.getElementById("data").value;
-      const funcao = document.getElementById("funcao").value;
-      const valorBruto = parseFloat(document.getElementById("valor").value);
-      const valorFormatado = isNaN(valorBruto) ? "R$ 0,00" : formatarParaReal(valorBruto);
+  <p>O pagamento inclui cessão de direitos autorais conforme lei 9.610/1998.<br>
+  Depósito bancário:</p>
+  <small>
+  Banco Itaú<br>
+  Agência: 2959<br>
+  Conta: 21912-8/500 (Poupança)<br>
+  Titular: João Guilherme Martins Silva<br>
+  CPF: 431.165.208-95<br>
+  Chave Pix: joaoguilherme.pro@gmail.com
+  </small>
+</div>
 
-      const dataFormatada = data.split("-").reverse().join(".");
-      const nomeArquivo = `${projeto} - ${dataFormatada} - Recibo Frame arte`;
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+function atualizar() {
+  document.getElementById('out_empresa').textContent = document.getElementById('empresa').value;
+  document.getElementById('out_cnpj').textContent = document.getElementById('cnpj').value;
+  document.getElementById('out_endereco').textContent = document.getElementById('endereco').value;
+  document.getElementById('out_valor').textContent = document.getElementById('valor').value;
+  document.getElementById('out_funcao').textContent = document.getElementById('funcao').value;
+  const data = new Date(document.getElementById('data').value);
+  document.getElementById('out_data').textContent = ('0' + data.getDate()).slice(-2) + '.' + ('0' + (data.getMonth() + 1)).slice(-2) + '.' + data.getFullYear();
+  document.getElementById('out_projeto').textContent = document.getElementById('projeto').value;
+}
 
-      const reciboHTML = `
-        <div>
-          <p class="bold">Projeto: ${projeto}</p>
-          <p class="bold">Data: ${dataFormatada}</p>
-          <p class="bold">Função: ${funcao}</p>
-          <p class="small">Valor: ${valorFormatado}</p>
-          <p class="small">Recebi de FRAME ARTE a quantia acima referente ao serviço prestado no projeto especificado.</p>
-        </div>
-      `;
+function exportarPDF() {
+  const projeto = document.getElementById('projeto').value || 'Projeto';
+  const data = new Date(document.getElementById('data').value);
+  const dataFormatada = ('0' + data.getDate()).slice(-2) + '.' + ('0' + (data.getMonth() + 1)).slice(-2) + '.' + data.getFullYear();
+  const nomeArquivo = `${projeto} - ${dataFormatada} - Recibo Frame Arte.pdf`;
 
-      const reciboDiv = document.getElementById("recibo");
-      reciboDiv.innerHTML = reciboHTML;
-      reciboDiv.style.display = "block";
-    }
-  </script>
+  html2pdf().from(document.getElementById('recibo')).set({
+    margin: 0.5,
+    filename: nomeArquivo,
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+  }).save();
+}
+
+function formatarValor() {
+  let valor = document.getElementById('valor').value.replace(/[^0-9]/g, '');
+  if (valor) {
+    valor = (parseInt(valor) / 100).toFixed(2) + '';
+    valor = valor.replace('.', ',');
+    valor = valor.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+    document.getElementById('valor').value = 'R$ ' + valor;
+  }
+}
+
+window.onload = atualizar;
+</script>
+
 </body>
 </html>
